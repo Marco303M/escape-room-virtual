@@ -35,23 +35,26 @@ const assignRoomsToEnigmas = (enigmasToAssign, availableRooms) => {
 const baseEnigmas = [
   {
     id: 0,
-    type: 'text_input', // Tipo di domanda: input testuale
-    clue: `Benvenuti nella vostra avventura! L'indizio iniziale è: 'Il numero di lettere nel nome del nostro pianeta.'<br/><img src="https://placehold.co/150x100/000/FFF?text=Pianeta" alt="Immagine Pianeta" class="mt-2 rounded-md"/>`,
+    type: 'text_input',
+    text: `Benvenuti nella vostra avventura! L'indizio iniziale è: 'Il numero di lettere nel nome del nostro pianeta.'`, // Solo testo
+    image: 'pianeta.png', // Solo nome del file immagine
     correctAnswer: "6", // Terra
     hints: ["Pensa al sistema solare.", "Qual è il pianeta su cui viviamo?", "Il nome è corto."],
   },
   {
     id: 1,
-    type: 'multiple_choice', // Tipo di domanda: scelta multipla
-    clue: `Ottimo! Ora, il prossimo indizio: 'Qual è il colore del cielo in una giornata serena?' Scegli la risposta corretta tra le opzioni.`,
+    type: 'multiple_choice',
+    text: `Ottimo! Ora, il prossimo indizio: 'Qual è il colore del cielo in una giornata serena?' Scegli la risposta corretta tra le opzioni.`, // Solo testo
+    image: 'cielo.jpg', // Solo nome del file immagine (es. una foto di cielo)
     correctAnswer: "blu",
-    options: ["rosso", "blu", "verde"], // Opzioni per la scelta multipla
+    options: ["rosso", "blu", "verde"],
     hints: ["Guarda in alto durante il giorno.", "Non è verde, né rosso.", "È un colore primario."],
   },
   {
     id: 2,
-    type: 'text_input', // Tipo di domanda: input testuale
-    clue: `Quasi! Per l'ultimo enigma: 'Il risultato di 7 moltiplicato per 8.'<br/><img src="https://placehold.co/180x80/000/FFF?text=7x8=?" alt="Immagine Operazione" class="mt-2 rounded-md"/>`,
+    type: 'text_input',
+    text: `Quasi! Per l'ultimo enigma: 'Il risultato di 7 moltiplicato per 8.'`, // Solo testo
+    image: 'operazione.png', // Solo nome del file immagine
     correctAnswer: "56",
     hints: ["È una moltiplicazione.", "Pensa alla tavola pitagorica.", "Il numero è tra 50 e 60."],
   },
@@ -63,12 +66,13 @@ export const enigmasWithRooms = assignRoomsToEnigmas(baseEnigmas, rooms);
 // Aggiungi l'enigma finale (senza stanza associata)
 export const finalEnigma = {
   id: enigmasWithRooms.length,
-  type: 'text_input', // Anche l'enigma finale ha un tipo
-  clue: "Congratulazioni! Hai risolto tutti gli enigmi. Il tuo tempo finale è:",
-  correctAnswer: "END", // Soluzione fittizia per indicare la fine
-  hints: [], // Nessun suggerimento per l'enigma finale
-  room: null, // Nessuna stanza per l'enigma finale
-  roomColor: 'bg-gray-700', // Colore di default per l'enigma finale
+  type: 'text_input',
+  text: "Congratulazioni! Hai risolto tutti gli enigmi. Il tuo tempo finale è:", // Solo testo
+  image: null, // Nessuna immagine per l'enigma finale
+  correctAnswer: "END",
+  hints: [],
+  room: null,
+  roomColor: 'bg-gray-700',
 };
 
 export const enigmas = [...enigmasWithRooms, finalEnigma];
