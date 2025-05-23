@@ -35,26 +35,22 @@ const assignRoomsToEnigmas = (enigmasToAssign, availableRooms) => {
 const baseEnigmas = [
   {
     id: 0,
+    type: 'text_input', // Tipo di domanda: input testuale
     clue: `Benvenuti nella vostra avventura! L'indizio iniziale è: 'Il numero di lettere nel nome del nostro pianeta.'<br/><img src="https://placehold.co/150x100/000/FFF?text=Pianeta" alt="Immagine Pianeta" class="mt-2 rounded-md"/>`,
     correctAnswer: "6", // Terra
     hints: ["Pensa al sistema solare.", "Qual è il pianeta su cui viviamo?", "Il nome è corto."],
   },
   {
     id: 1,
-    clue: `Ottimo! Ora, il prossimo indizio: 'Qual è il colore del cielo in una giornata serena?' (scrivi in italiano, minuscolo)<br/><table class="mt-2 w-full text-left text-sm text-gray-400">
-      <thead class="text-xs text-gray-700 uppercase bg-gray-500">
-        <tr><th scope="col" class="px-6 py-3">Elemento</th><th scope="col" class="px-6 py-3">Caratteristica</th></tr>
-      </thead>
-      <tbody>
-        <tr class="bg-gray-700 border-b border-gray-600"><td class="px-6 py-4">Cielo</td><td class="px-6 py-4">Diurno</td></tr>
-        <tr class="bg-gray-700 border-b border-gray-600"><td class="px-6 py-4">Mare</td><td class="px-6 py-4">Profondo</td></tr>
-      </tbody>
-    </table>`,
+    type: 'multiple_choice', // Tipo di domanda: scelta multipla
+    clue: `Ottimo! Ora, il prossimo indizio: 'Qual è il colore del cielo in una giornata serena?' Scegli la risposta corretta tra le opzioni.`,
     correctAnswer: "blu",
+    options: ["rosso", "blu", "verde"], // Opzioni per la scelta multipla
     hints: ["Guarda in alto durante il giorno.", "Non è verde, né rosso.", "È un colore primario."],
   },
   {
     id: 2,
+    type: 'text_input', // Tipo di domanda: input testuale
     clue: `Quasi! Per l'ultimo enigma: 'Il risultato di 7 moltiplicato per 8.'<br/><img src="https://placehold.co/180x80/000/FFF?text=7x8=?" alt="Immagine Operazione" class="mt-2 rounded-md"/>`,
     correctAnswer: "56",
     hints: ["È una moltiplicazione.", "Pensa alla tavola pitagorica.", "Il numero è tra 50 e 60."],
@@ -67,6 +63,7 @@ export const enigmasWithRooms = assignRoomsToEnigmas(baseEnigmas, rooms);
 // Aggiungi l'enigma finale (senza stanza associata)
 export const finalEnigma = {
   id: enigmasWithRooms.length,
+  type: 'text_input', // Anche l'enigma finale ha un tipo
   clue: "Congratulazioni! Hai risolto tutti gli enigmi. Il tuo tempo finale è:",
   correctAnswer: "END", // Soluzione fittizia per indicare la fine
   hints: [], // Nessun suggerimento per l'enigma finale

@@ -14,7 +14,7 @@ function SolutionInput({ solutionInput, handleInputChange, handleSubmit }) {
       />
       <button
         type="submit"
-        className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-md transition duration-300 ease-in-out transform hover:scale-105 shadow-lg"
+        className="bg-blue-600 hover:bg-blue-700 text-black font-bold py-3 px-6 rounded-md transition duration-300 ease-in-out transform hover:scale-105 shadow-lg"
       >
         Verifica Soluzione
       </button>

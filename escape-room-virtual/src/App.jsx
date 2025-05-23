@@ -3,13 +3,14 @@ import viteLogo from '/vite.svg'
 import './App.css'
 
 // src/App.js
-import React, { useState, useEffect, useRef } from 'react'
-import { enigmas, rooms } from './components/EnigmaData'
-import TimerDisplay from './components/TimerDisplay'
-import ClueDisplay from './components/ClueDisplay'
-import HintSection from './components/HintSection'
-import SolutionInput from './components/SolutionInput'
-import MapModal from './components/MapModal'
+import React, { useState, useEffect, useRef } from 'react';
+import { enigmas, rooms } from './components/EnigmaData';
+import TimerDisplay from './components/TimerDisplay';
+import ClueDisplay from './components/ClueDisplay';
+import HintSection from './components/HintSection';
+import SolutionInput from './components/SolutionInput';
+import MultipleChoiceOptions from './components/MultipleChoiceOptions'; // Importa il nuovo componente
+import MapModal from './components/MapModal';
 
 function App() {
   const [currentEnigmaIndex, setCurrentEnigmaIndex] = useState(0);
@@ -53,11 +54,14 @@ function App() {
     setSolutionInput(e.target.value);
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault(); // Previene il ricaricamento della pagina
-    const currentEnigma = enigmas[currentEnigmaIndex];
+  // Funzione handleSubmit modificata per accettare un parametro di risposta opzionale
+  const handleSubmit = (e, submittedAnswer = null) => {
+    if (e) e.preventDefault(); // Previene il comportamento di default del form solo se è un evento di form
 
-    if (solutionInput.toLowerCase().trim() === currentEnigma.correctAnswer.toLowerCase().trim()) {
+    const currentEnigma = enigmas[currentEnigmaIndex];
+    const answerToCheck = submittedAnswer !== null ? submittedAnswer : solutionInput;
+
+    if (answerToCheck.toLowerCase().trim() === currentEnigma.correctAnswer.toLowerCase().trim()) {
       // Soluzione corretta
       setMessage('Corretto! Ottimo lavoro!');
       setSolutionInput(''); // Resetta l'input
@@ -111,7 +115,7 @@ function App() {
         {/* Pulsante Visualizza Mappa */}
         <button
           onClick={() => setShowMapModal(true)}
-          className="mb-6 bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-md transition duration-300 ease-in-out transform hover:scale-105 shadow-lg w-full"
+          className="mb-6 bg-purple-600 hover:bg-purple-700 text-black font-bold py-2 px-4 rounded-md transition duration-300 ease-in-out transform hover:scale-105 shadow-lg w-full"
         >
           Visualizza Mappa
         </button>
@@ -138,13 +142,20 @@ function App() {
           handleRequestHint={handleRequestHint}
         />
 
-        {/* Input e pulsante di invio (solo se non è l'ultimo enigma) */}
+        {/* Input o Scelta Multipla (solo se non è l'ultimo enigma) */}
         {currentEnigma.id !== enigmas[enigmas.length - 1].id ? (
-          <SolutionInput
-            solutionInput={solutionInput}
-            handleInputChange={handleInputChange}
-            handleSubmit={handleSubmit}
-          />
+          currentEnigma.type === 'text_input' ? (
+            <SolutionInput
+              solutionInput={solutionInput}
+              handleInputChange={handleInputChange}
+              handleSubmit={handleSubmit}
+            />
+          ) : (
+            <MultipleChoiceOptions
+              options={currentEnigma.options}
+              onOptionSelect={(selectedOption) => handleSubmit(null, selectedOption)} // Passa null per l'evento, e l'opzione selezionata
+            />
+          )
         ) : (
           <div className="text-center text-2xl font-bold text-green-400 mt-8">
             Gioco Completato!

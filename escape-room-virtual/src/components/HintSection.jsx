@@ -19,7 +19,7 @@ function HintSection({ hints, revealedHintsCount, allHintsRevealed, handleReques
       {!allHintsRevealed && (
         <button
           onClick={handleRequestHint}
-          className="mt-4 bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded-md transition duration-300 ease-in-out transform hover:scale-105 shadow-lg w-full"
+          className="mt-4 bg-yellow-600 hover:bg-yellow-700 text-black font-bold py-2 px-4 rounded-md transition duration-300 ease-in-out transform hover:scale-105 shadow-lg w-full"
         >
           Richiedi Suggerimento ({hints.length - revealedHintsCount} rimasti)
         </button>
