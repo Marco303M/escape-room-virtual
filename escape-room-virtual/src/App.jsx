@@ -2,15 +2,16 @@ import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 
-// src/App.js
+// src/App.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { enigmas, rooms } from './components/EnigmaData';
 import TimerDisplay from './components/TimerDisplay';
 import ClueDisplay from './components/ClueDisplay';
 import HintSection from './components/HintSection';
 import SolutionInput from './components/SolutionInput';
-import MultipleChoiceOptions from './components/MultipleChoiceOptions'; // Importa il nuovo componente
+import MultipleChoiceOptions from './components/MultipleChoiceOptions';
 import MapModal from './components/MapModal';
+import { FEEDBACK_MESSAGE_DURATION_MS } from './utils/constants'; // Import constants
 
 function App() {
   const [currentEnigmaIndex, setCurrentEnigmaIndex] = useState(0);
@@ -22,6 +23,7 @@ function App() {
   const [revealedHintsCount, setRevealedHintsCount] = useState(0); // Numero di suggerimenti rivelati per l'enigma corrente
   const [showMapModal, setShowMapModal] = useState(false); // Stato per la visibilità della mappa
   const timerRef = useRef(null); // Riferimento per il timer setInterval
+  const messageTimeoutRef = useRef(null); // Riferimento per il timeout del messaggio di feedback
 
   // Effetto per avviare e gestire il timer
   useEffect(() => {
@@ -37,9 +39,15 @@ function App() {
 
     // Reset dei suggerimenti quando si passa a un nuovo enigma
     setRevealedHintsCount(0);
+    // Pulisci il messaggio di feedback quando l'enigma cambia
+    setMessage('');
+    setShowPenaltyMessage(false);
 
-    // Cleanup function: ferma il timer quando il componente si smonta o l'indice cambia
-    return () => clearInterval(timerRef.current);
+    // Cleanup function: ferma il timer e pulisci il timeout del messaggio quando il componente si smonta o l'indice cambia
+    return () => {
+      clearInterval(timerRef.current);
+      clearTimeout(messageTimeoutRef.current);
+    };
   }, [currentEnigmaIndex, enigmas.length]);
 
   // Formatta il tempo in HH:MM:SS
@@ -54,6 +62,16 @@ function App() {
     setSolutionInput(e.target.value);
   };
 
+  // Funzione per impostare il messaggio di feedback temporaneo
+  const setTemporaryMessage = (msg, duration = FEEDBACK_MESSAGE_DURATION_MS) => {
+    setMessage(msg);
+    clearTimeout(messageTimeoutRef.current); // Clear any existing timeout
+    messageTimeoutRef.current = setTimeout(() => {
+      setMessage('');
+      setShowPenaltyMessage(false); // Nasconde anche il messaggio di penalità se gestito qui
+    }, duration);
+  };
+
   // Funzione handleSubmit modificata per accettare un parametro di risposta opzionale
   const handleSubmit = (e, submittedAnswer = null) => {
     if (e) e.preventDefault(); // Previene il comportamento di default del form solo se è un evento di form
@@ -63,25 +81,28 @@ function App() {
 
     if (answerToCheck.toLowerCase().trim() === currentEnigma.correctAnswer.toLowerCase().trim()) {
       // Soluzione corretta
-      setMessage('Corretto! Ottimo lavoro!');
+      setTemporaryMessage('Corretto! Ottimo lavoro!');
       setSolutionInput(''); // Resetta l'input
-      setShowPenaltyMessage(false); // Nasconde il messaggio di penalità se era visibile
 
       // Passa all'enigma successivo
       if (currentEnigmaIndex < enigmas.length - 1) {
-        setCurrentEnigmaIndex(currentEnigmaIndex + 1);
+        // Aggiungi un piccolo ritardo prima di passare al prossimo enigma per visualizzare il messaggio
+        setTimeout(() => setCurrentEnigmaIndex(currentEnigmaIndex + 1), FEEDBACK_MESSAGE_DURATION_MS);
       } else {
         // Fine del gioco
-        setMessage(`Congratulazioni! Hai risolto tutti gli enigmi in ${formatTime(totalTime + penaltyTime)}.`);
-        clearInterval(timerRef.current); // Ferma il timer finale
+        setTimeout(() => { // Ritardo per mostrare il messaggio finale
+          setMessage(`Congratulazioni! Hai risolto tutti gli enigmi in ${formatTime(totalTime + penaltyTime)}.`);
+          clearInterval(timerRef.current); // Ferma il timer finale
+        }, FEEDBACK_MESSAGE_DURATION_MS);
       }
     } else {
       // Soluzione errata
-      setMessage('Sbagliato! Penalità di 5 minuti.');
+      setTemporaryMessage('Sbagliato! Penalità di 5 minuti.');
       setPenaltyTime((prevPenalty) => prevPenalty + 300); // Aggiunge 300 secondi (5 minuti)
       setShowPenaltyMessage(true); // Mostra il messaggio di penalità
       setSolutionInput(''); // Resetta l'input
-      // Avvisa l'utente della penalità e poi passa comunque all'indizio successivo dopo un breve ritardo
+      
+      // Passa all'enigma successivo dopo il tempo del messaggio e della penalità
       setTimeout(() => {
         if (currentEnigmaIndex < enigmas.length - 1) {
           setCurrentEnigmaIndex(currentEnigmaIndex + 1);
@@ -90,8 +111,7 @@ function App() {
           setMessage(`Hai risolto tutti gli enigmi (con errori) in ${formatTime(totalTime + penaltyTime)}.`);
           clearInterval(timerRef.current);
         }
-        setMessage(''); // Pulisce il messaggio dopo il passaggio all'enigma successivo
-      }, 2000); // Mostra il messaggio di errore per 2 secondi
+      }, FEEDBACK_MESSAGE_DURATION_MS); // Il messaggio viene pulito dal setTemporaryMessage
     }
   };
 
@@ -100,8 +120,7 @@ function App() {
     if (revealedHintsCount < currentEnigma.hints.length) {
       setRevealedHintsCount(prevCount => prevCount + 1);
       setPenaltyTime(prevPenalty => prevPenalty + 120); // Aggiunge 120 secondi (2 minuti)
-      setMessage('Suggerimento richiesto! Penalità di 2 minuti.');
-      setTimeout(() => setMessage(''), 2000); // Pulisce il messaggio dopo 2 secondi
+      setTemporaryMessage('Suggerimento richiesto! Penalità di 2 minuti.');
     }
   };
 
@@ -115,7 +134,7 @@ function App() {
         {/* Pulsante Visualizza Mappa */}
         <button
           onClick={() => setShowMapModal(true)}
-          className="mb-6 bg-purple-600 hover:bg-purple-700 text-black font-bold py-2 px-4 rounded-md transition duration-300 ease-in-out transform hover:scale-105 shadow-lg w-full"
+          className="mb-6 bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-md transition duration-300 ease-in-out transform hover:scale-105 shadow-lg w-full"
         >
           Visualizza Mappa
         </button>
@@ -153,7 +172,8 @@ function App() {
           ) : (
             <MultipleChoiceOptions
               options={currentEnigma.options}
-              onOptionSelect={(selectedOption) => handleSubmit(null, selectedOption)} // Passa null per l'evento, e l'opzione selezionata
+              correctAnswer={currentEnigma.correctAnswer} // Passa la risposta corretta per il feedback visivo
+              onOptionSelect={(selectedOption) => handleSubmit(null, selectedOption)}
             />
           )
         ) : (
