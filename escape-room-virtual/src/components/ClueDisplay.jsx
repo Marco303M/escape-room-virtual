@@ -22,7 +22,7 @@ function ClueDisplay({ enigma, currentEnigmaIndex }) {
   return (
     <div className={`${clueBackgroundColorClass} p-5 rounded-md mb-6 border border-gray-600 shadow-md`}>
       <h2 className="text-xl font-semibold mb-3 text-blue-300">Indizio Enigma {currentEnigmaIndex + 1}:</h2>
-      <p className={`text-lg leading-relaxed ${clueTextColorClass}`}>{enigma.text}</p> {/* Applica il colore del testo */}
+      <p className={`text-lg leading-relaxed ${clueTextColorClass}`}>{enigma.text}</p> {/* Ora visualizza solo il testo */}
 
       {/* Visualizza l'immagine se il percorso è disponibile */}
       {imageUrl && (

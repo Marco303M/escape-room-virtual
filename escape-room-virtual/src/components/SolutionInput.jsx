@@ -1,4 +1,4 @@
-// src/components/SolutionInput.js
+// src/components/SolutionInput.jsx
 import React from 'react';
 
 function SolutionInput({ solutionInput, handleInputChange, handleSubmit }) {

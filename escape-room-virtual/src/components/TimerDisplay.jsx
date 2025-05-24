@@ -1,4 +1,4 @@
-// src/components/TimerDisplay.js
+// src/components/TimerDisplay.jsx
 import React from 'react';
 
 function TimerDisplay({ totalTime, penaltyTime, showPenaltyMessage, formatTime }) {

@@ -1,6 +1,6 @@
-// src/components/MapModal.js
+// src/components/MapModal.jsx
 import React from 'react';
-import { rooms } from './EnigmaData'; // Importa le stanze definite
+import { rooms } from '../data/gameData'; // Importa le stanze dal nuovo file gameData.js
 
 function MapModal({ show, onClose, currentRoomId }) {
   if (!show) {

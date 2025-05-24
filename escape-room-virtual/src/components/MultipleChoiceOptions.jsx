@@ -4,17 +4,17 @@ import { MULTIPLE_CHOICE_FEEDBACK_DURATION_MS } from '../utils/constants'; // Im
 
 function MultipleChoiceOptions({ options, correctAnswer, onOptionSelect }) {
   const [selectedOptionState, setSelectedOptionState] = useState(null);
-  const [feedbackBorderClass, setFeedbackBorderClass] = useState(''); // Nuovo stato per la classe del bordo
+  const [feedbackBorderClass, setFeedbackBorderClass] = useState(''); // Stato per la classe del bordo
 
   const handleOptionClick = (option) => {
     // Se un'opzione è già stata selezionata, non fare nulla
     if (selectedOptionState !== null) return;
 
-    setSelectedOptionState(option); // Set the locally selected option
+    setSelectedOptionState(option); // Imposta l'opzione selezionata localmente
     const isCorrect = option.toLowerCase() === correctAnswer.toLowerCase();
 
     // Determina la classe del bordo di feedback
-    const borderClass = isCorrect ? 'border-green' : 'border-red';
+    const borderClass = isCorrect ? 'border-green-500' : 'border-red-500';
     setFeedbackBorderClass(borderClass);
 
     // Fornisci feedback visivo per una breve durata
@@ -24,8 +24,22 @@ function MultipleChoiceOptions({ options, correctAnswer, onOptionSelect }) {
     }, MULTIPLE_CHOICE_FEEDBACK_DURATION_MS);
   };
 
+  // Determina le classi grid in base al numero di opzioni
+  // Adatta il layout per 1, 2, 3 o più opzioni
+  let gridClasses = '';
+  if (options.length === 1) {
+    gridClasses = 'grid-cols-1';
+  } else if (options.length === 2) {
+    gridClasses = 'grid-cols-1 md:grid-cols-2';
+  } else if (options.length === 3) {
+    gridClasses = 'grid-cols-1 md:grid-cols-3';
+  } else {
+    // Per 4 o più opzioni, usa un layout più flessibile
+    gridClasses = 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4';
+  }
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+    <div className={`grid ${gridClasses} gap-4 mb-6`}>
       {options.map((option, index) => (
         <button
           key={index}

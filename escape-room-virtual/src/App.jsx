@@ -1,10 +1,6 @@
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
-
 // src/App.jsx
 import React, { useState, useEffect, useRef } from 'react';
-import { enigmas, rooms } from './components/EnigmaData';
+import { enigmas, rooms } from './components/EnigmaData'; // rooms è ora re-esportato da EnigmaData.js
 import TimerDisplay from './components/TimerDisplay';
 import ClueDisplay from './components/ClueDisplay';
 import HintSection from './components/HintSection';
