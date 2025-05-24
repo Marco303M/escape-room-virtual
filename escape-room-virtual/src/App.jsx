@@ -1,13 +1,13 @@
 // src/App.jsx
 import React, { useState, useEffect, useRef } from 'react';
-import { enigmas, rooms } from './components/EnigmaData'; // rooms è ora re-esportato da EnigmaData.js
+import { enigmas, rooms } from './components/EnigmaData';
 import TimerDisplay from './components/TimerDisplay';
 import ClueDisplay from './components/ClueDisplay';
 import HintSection from './components/HintSection';
 import SolutionInput from './components/SolutionInput';
 import MultipleChoiceOptions from './components/MultipleChoiceOptions';
 import MapModal from './components/MapModal';
-import { FEEDBACK_MESSAGE_DURATION_MS } from './utils/constants'; // Import constants
+import { FEEDBACK_MESSAGE_DURATION_MS } from './utils/constants';
 
 function App() {
   const [currentEnigmaIndex, setCurrentEnigmaIndex] = useState(0);
@@ -18,6 +18,15 @@ function App() {
   const [showPenaltyMessage, setShowPenaltyMessage] = useState(false);
   const [revealedHintsCount, setRevealedHintsCount] = useState(0); // Numero di suggerimenti rivelati per l'enigma corrente
   const [showMapModal, setShowMapModal] = useState(false); // Stato per la visibilità della mappa
+
+  // Nuovi stati per le statistiche di fine gioco
+  const [correctAnswersCount, setCorrectAnswersCount] = useState(0);
+  const [wrongAnswersCount, setWrongAnswersCount] = useState(0);
+  const [totalHintsRequested, setTotalHintsRequested] = useState(0); // Suggerimenti totali richiesti
+
+  // Nuovo stato per inibire i pulsanti durante il processo di feedback/transizione
+  const [isProcessingAnswer, setIsProcessingAnswer] = useState(false);
+
   const timerRef = useRef(null); // Riferimento per il timer setInterval
   const messageTimeoutRef = useRef(null); // Riferimento per il timeout del messaggio di feedback
 
@@ -38,6 +47,7 @@ function App() {
     // Pulisci il messaggio di feedback quando l'enigma cambia
     setMessage('');
     setShowPenaltyMessage(false);
+    setIsProcessingAnswer(false); // Assicurati che non sia in elaborazione all'inizio di un nuovo enigma
 
     // Cleanup function: ferma il timer e pulisci il timeout del messaggio quando il componente si smonta o l'indice cambia
     return () => {
@@ -58,13 +68,14 @@ function App() {
     setSolutionInput(e.target.value);
   };
 
-  // Funzione per impostare il messaggio di feedback temporaneo
+  // Funzione per impostare il messaggio di feedback temporaneo e resettare lo stato di elaborazione
   const setTemporaryMessage = (msg, duration = FEEDBACK_MESSAGE_DURATION_MS) => {
     setMessage(msg);
     clearTimeout(messageTimeoutRef.current); // Clear any existing timeout
     messageTimeoutRef.current = setTimeout(() => {
       setMessage('');
-      setShowPenaltyMessage(false); // Nasconde anche il messaggio di penalità se gestito qui
+      setShowPenaltyMessage(false);
+      setIsProcessingAnswer(false); // Resetta lo stato di elaborazione dopo il feedback
     }, duration);
   };
 
@@ -72,12 +83,15 @@ function App() {
   const handleSubmit = (e, submittedAnswer = null) => {
     if (e) e.preventDefault(); // Previene il comportamento di default del form solo se è un evento di form
 
+    setIsProcessingAnswer(true); // Imposta lo stato di elaborazione all'inizio della sottomissione
+
     const currentEnigma = enigmas[currentEnigmaIndex];
     const answerToCheck = submittedAnswer !== null ? submittedAnswer : solutionInput;
 
     if (answerToCheck.toLowerCase().trim() === currentEnigma.correctAnswer.toLowerCase().trim()) {
       // Soluzione corretta
       setTemporaryMessage('Corretto! Ottimo lavoro!');
+      setCorrectAnswersCount(prevCount => prevCount + 1); // Incrementa contatore risposte esatte
       setSolutionInput(''); // Resetta l'input
 
       // Passa all'enigma successivo
@@ -96,6 +110,7 @@ function App() {
       setTemporaryMessage('Sbagliato! Penalità di 5 minuti.');
       setPenaltyTime((prevPenalty) => prevPenalty + 300); // Aggiunge 300 secondi (5 minuti)
       setShowPenaltyMessage(true); // Mostra il messaggio di penalità
+      setWrongAnswersCount(prevCount => prevCount + 1); // Incrementa contatore risposte sbagliate
       setSolutionInput(''); // Resetta l'input
       
       // Passa all'enigma successivo dopo il tempo del messaggio e della penalità
@@ -107,16 +122,26 @@ function App() {
           setMessage(`Hai risolto tutti gli enigmi (con errori) in ${formatTime(totalTime + penaltyTime)}.`);
           clearInterval(timerRef.current);
         }
-      }, FEEDBACK_MESSAGE_DURATION_MS); // Il messaggio viene pulito dal setTemporaryMessage
+      }, FEEDBACK_MESSAGE_DURATION_MS);
     }
   };
 
   const handleRequestHint = () => {
+    // Impedisce la richiesta di suggerimenti se una risposta è già in elaborazione
+    if (isProcessingAnswer) {
+      return;
+    }
+
+    setIsProcessingAnswer(true); // Imposta lo stato di elaborazione per la richiesta di suggerimento
+
     const currentEnigma = enigmas[currentEnigmaIndex];
     if (revealedHintsCount < currentEnigma.hints.length) {
       setRevealedHintsCount(prevCount => prevCount + 1);
       setPenaltyTime(prevPenalty => prevPenalty + 120); // Aggiunge 120 secondi (2 minuti)
       setTemporaryMessage('Suggerimento richiesto! Penalità di 2 minuti.');
+      setTotalHintsRequested(prevCount => prevCount + 1); // Incrementa contatore suggerimenti totali
+    } else {
+      setIsProcessingAnswer(false); // Resetta se non ci sono suggerimenti disponibili
     }
   };
 
@@ -124,13 +149,15 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-4 font-sans">
-      <div className="bg-gray-800 p-8 rounded-lg shadow-2xl w-full max-w-md border border-gray-700">
+      {/* Aggiunto 'mx-auto' per una centratura orizzontale più robusta */}
+      <div className="bg-gray-800 p-8 rounded-lg shadow-2xl w-full max-w-md border border-gray-700 mx-auto">
         <h1 className="text-3xl font-bold text-center text-blue-400 mb-6">Escape Room Digitale</h1>
 
         {/* Pulsante Visualizza Mappa */}
         <button
           onClick={() => setShowMapModal(true)}
           className="mb-6 bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-md transition duration-300 ease-in-out transform hover:scale-105 shadow-lg w-full"
+          disabled={isProcessingAnswer} // Disabilita il pulsante mappa durante l'elaborazione
         >
           Visualizza Mappa
         </button>
@@ -155,6 +182,7 @@ function App() {
           revealedHintsCount={revealedHintsCount}
           allHintsRevealed={revealedHintsCount >= currentEnigma.hints.length}
           handleRequestHint={handleRequestHint}
+          isProcessingAnswer={isProcessingAnswer} // Passa lo stato di elaborazione
         />
 
         {/* Input o Scelta Multipla (solo se non è l'ultimo enigma) */}
@@ -164,18 +192,25 @@ function App() {
               solutionInput={solutionInput}
               handleInputChange={handleInputChange}
               handleSubmit={handleSubmit}
+              isDisabled={isProcessingAnswer} // Passa lo stato di elaborazione
             />
           ) : (
             <MultipleChoiceOptions
               options={currentEnigma.options}
               correctAnswer={currentEnigma.correctAnswer} // Passa la risposta corretta per il feedback visivo
               onOptionSelect={(selectedOption) => handleSubmit(null, selectedOption)}
+              isDisabled={isProcessingAnswer} // Passa lo stato di elaborazione
             />
           )
         ) : (
           <div className="text-center text-2xl font-bold text-green-400 mt-8">
             Gioco Completato!
-            <p className="text-xl text-gray-300 mt-2">Tempo finale (incluse penalità): {formatTime(totalTime + penaltyTime)}</p>
+            <div className="text-xl text-gray-300 mt-4 space-y-2">
+              <p>Suggerimenti richiesti: <span className="font-bold">{totalHintsRequested}</span></p>
+              <p>Risposte esatte: <span className="font-bold text-green-300">{correctAnswersCount}</span></p>
+              <p>Risposte sbagliate: <span className="font-bold text-red-300">{wrongAnswersCount}</span></p>
+              <p className="mt-4 text-2xl">Tempo finale: <span className="font-bold text-yellow-300">{formatTime(totalTime + penaltyTime)}</span></p>
+            </div>
           </div>
         )}
 

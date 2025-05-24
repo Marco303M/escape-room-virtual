@@ -2,13 +2,13 @@
 import React, { useState } from 'react';
 import { MULTIPLE_CHOICE_FEEDBACK_DURATION_MS } from '../utils/constants'; // Import constants
 
-function MultipleChoiceOptions({ options, correctAnswer, onOptionSelect }) {
+function MultipleChoiceOptions({ options, correctAnswer, onOptionSelect, isDisabled }) {
   const [selectedOptionState, setSelectedOptionState] = useState(null);
   const [feedbackBorderClass, setFeedbackBorderClass] = useState(''); // Stato per la classe del bordo
 
   const handleOptionClick = (option) => {
-    // Se un'opzione è già stata selezionata, non fare nulla
-    if (selectedOptionState !== null) return;
+    // Se un'opzione è già stata selezionata o se il componente è disabilitato, non fare nulla
+    if (selectedOptionState !== null || isDisabled) return;
 
     setSelectedOptionState(option); // Imposta l'opzione selezionata localmente
     const isCorrect = option.toLowerCase() === correctAnswer.toLowerCase();
@@ -21,11 +21,11 @@ function MultipleChoiceOptions({ options, correctAnswer, onOptionSelect }) {
     setTimeout(() => {
       setFeedbackBorderClass(''); // Rimuovi il bordo di feedback
       onOptionSelect(option); // Poi attiva la logica del genitore per passare all'enigma successivo
+      setSelectedOptionState(null); // Resetta lo stato locale dopo la transizione
     }, MULTIPLE_CHOICE_FEEDBACK_DURATION_MS);
   };
 
   // Determina le classi grid in base al numero di opzioni
-  // Adatta il layout per 1, 2, 3 o più opzioni
   let gridClasses = '';
   if (options.length === 1) {
     gridClasses = 'grid-cols-1';
@@ -53,7 +53,7 @@ function MultipleChoiceOptions({ options, correctAnswer, onOptionSelect }) {
             ${selectedOptionState !== null && selectedOptionState !== option ? 'opacity-50 pointer-events-none' : ''} // Opacizza le altre opzioni
           `}
           style={{ minHeight: '100px' }} // Assicura un'altezza consistente per le opzioni
-          disabled={selectedOptionState !== null} // Disabilita i pulsanti una volta selezionata un'opzione
+          disabled={isDisabled || selectedOptionState !== null} // Disabilita se il padre lo richiede o se un'opzione è già stata selezionata localmente
         >
           <span className="text-lg">{option}</span>
         </button>

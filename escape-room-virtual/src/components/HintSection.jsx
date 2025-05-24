@@ -1,7 +1,7 @@
 // src/components/HintSection.jsx
 import React from 'react';
 
-function HintSection({ hints, revealedHintsCount, allHintsRevealed, handleRequestHint }) {
+function HintSection({ hints, revealedHintsCount, allHintsRevealed, handleRequestHint, isProcessingAnswer }) {
   const hasHints = hints && hints.length > 0;
 
   if (!hasHints) {
@@ -19,7 +19,8 @@ function HintSection({ hints, revealedHintsCount, allHintsRevealed, handleReques
       {!allHintsRevealed && (
         <button
           onClick={handleRequestHint}
-          className="mt-4 bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded-md transition duration-300 ease-in-out transform hover:scale-105 shadow-lg w-full"
+          className="mt-4 bg-yellow-600 hover:bg-yellow-700 text-gray-900 font-bold py-2 px-4 rounded-md transition duration-300 ease-in-out transform hover:scale-105 shadow-lg w-full"
+          disabled={allHintsRevealed || isProcessingAnswer} // Disabilita se tutti i suggerimenti sono rivelati o se c'è un'elaborazione in corso
         >
           Richiedi Suggerimento ({hints.length - revealedHintsCount} rimasti)
         </button>
