@@ -1,13 +1,13 @@
 // src/App.jsx
 import React, { useState, useEffect, useRef } from 'react';
-import { enigmas, rooms } from './components/EnigmaData';
+import { enigmas, rooms } from './components/EnigmaData'; // rooms è ora re-esportato da EnigmaData.js
 import TimerDisplay from './components/TimerDisplay';
 import ClueDisplay from './components/ClueDisplay';
 import HintSection from './components/HintSection';
 import SolutionInput from './components/SolutionInput';
 import MultipleChoiceOptions from './components/MultipleChoiceOptions';
 import MapModal from './components/MapModal';
-import { FEEDBACK_MESSAGE_DURATION_MS } from './utils/constants';
+import { FEEDBACK_MESSAGE_DURATION_MS } from './utils/constants'; // Import constants
 
 function App() {
   const [currentEnigmaIndex, setCurrentEnigmaIndex] = useState(0);
@@ -156,7 +156,7 @@ function App() {
         {/* Pulsante Visualizza Mappa */}
         <button
           onClick={() => setShowMapModal(true)}
-          className="mb-6 bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-md transition duration-300 ease-in-out transform hover:scale-105 shadow-lg w-full"
+          className="mb-6 bg-purple-600 hover:bg-purple-700 text-gray-900 font-bold py-2 px-4 rounded-md transition duration-300 ease-in-out transform hover:scale-105 shadow-lg w-full"
           disabled={isProcessingAnswer} // Disabilita il pulsante mappa durante l'elaborazione
         >
           Visualizza Mappa

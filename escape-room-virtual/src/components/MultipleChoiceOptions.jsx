@@ -45,7 +45,7 @@ function MultipleChoiceOptions({ options, correctAnswer, onOptionSelect, isDisab
           key={index}
           onClick={() => handleOptionClick(option)}
           className={`
-            bg-gray-700 p-6 rounded-md shadow-lg text-white font-bold text-center
+            bg-gray-700 p-6 rounded-md shadow-lg text-gray-900 font-bold text-center // Modificato qui: text-gray-900
             flex items-center justify-center cursor-pointer
             transition-all duration-300 ease-in-out transform hover:scale-105
             border-2 border-gray-600 // Bordo di default più spesso
