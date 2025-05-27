@@ -1,0 +1,36 @@
+# .github/workflows/deploy.yml
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main # Questo workflow si attiverà ad ogni push (inclusi i merge) sul branch 'main'
+            # Se il tuo branch principale si chiama 'master', cambia qui in 'master'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest # Il job verrà eseguito su un runner Ubuntu più recente
+
+    steps:
+      - name: Checkout repository # Scarica il codice del repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js # Configura l'ambiente Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' # Specifica la versione di Node.js che usi nel tuo progetto
+
+      - name: Install dependencies # Installa le dipendenze del progetto
+        run: npm install # O 'yarn install' se usi yarn
+
+      - name: Build project # Costruisce il progetto (crea la cartella 'dist')
+        run: npm run build # O 'yarn build'
+
+      - name: Deploy to GitHub Pages # Usa l'azione 'peaceiris/actions-gh-pages' per il deployment
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }} # Token di autenticazione fornito automaticamente da GitHub
+          publish_dir: ./dist # La directory che contiene i file della tua build (default di Vite è 'dist')
+          publish_branch: gh-pages # Il branch su cui pubblicare i file (verrà creato se non esiste)
+          user_name: 'github-actions[bot]' # Nome utente per i commit automatici
+          user_email: 'github-actions[bot]@users.noreply.github.com' # Email per i commit automatici
