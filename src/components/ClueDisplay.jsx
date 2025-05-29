@@ -17,7 +17,7 @@ function ClueDisplay({ enigma, currentEnigmaIndex }) {
   const clueTextColorClass = getTextColorClass(clueBackgroundColorClass);
 
   // Costruisci il percorso dell'immagine
-  const imageUrl = enigma.image ? `/images/${enigma.image}` : null;
+  const imageUrl = enigma.image ? `public/images/${enigma.image}` : null;
 
   return (
     <div className={`${clueBackgroundColorClass} p-5 rounded-md mb-6 border border-gray-600 shadow-md`}>
